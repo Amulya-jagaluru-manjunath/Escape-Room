@@ -1,0 +1,133 @@
+{
+  "title": "The Halvorsen Library",
+  "intro": "You wake up slumped over a reading table in a dim, silent library. Candles flicker. The only exit is a heavy iron-banded door with a four-digit keypad. Somewhere in this room is the way out. (Type 'help' for commands or 'hint' if you get stuck.)",
+  "room_description": "A small, candle-lit reading room with dark wood panelling and the smell of old paper.",
+
+  "objects": {
+    "desk": {
+      "name": "oak desk",
+      "aliases": ["desk", "oak desk", "writing desk", "table", "reading table"],
+      "description": "A heavy oak writing desk covered in dust. A narrow drawer is built into its front, held shut by a small brass dial.",
+      "container": true,
+      "open": true
+    },
+    "drawer": {
+      "name": "desk drawer",
+      "aliases": ["drawer", "desk drawer", "dial", "dial lock", "combination lock"],
+      "description": "A narrow drawer in the front of the oak desk.",
+      "container": true,
+      "locked": true,
+      "lock": {
+        "type": "code",
+        "code": "714",
+        "digits": 3,
+        "requires_flags": ["note_read", "books_seen"],
+        "locked_text": "It is held shut by a brass dial with three number wheels.",
+        "gate_message": "You spin the dial at random, but you would only be guessing — you have not found anything that hints at the combination yet.",
+        "wrong_message": "You set the dial and pull. The drawer does not budge — wrong combination.",
+        "success_message": "The dial clicks into place at 7-1-4 and the drawer slides open."
+      }
+    },
+    "bookshelf": {
+      "name": "bookshelf",
+      "aliases": ["bookshelf", "bookcase", "shelf", "shelves", "books", "book", "spines"],
+      "description": "A towering bookshelf of leather-bound volumes. Three books stand out because each has a single gold number stamped on its spine. From left to right: a blue book marked 4, a red book marked 7 and a green book marked 1.",
+      "examine_flag": "books_seen"
+    },
+    "painting": {
+      "name": "painting",
+      "aliases": ["painting", "portrait", "picture", "canvas", "frame"],
+      "description": "An oil portrait of a stern woman in a high collar. A tarnished plate reads 'Edda Halvorsen, Founder'. Parts of the dark background have an odd, glossy sheen, as if something was painted over.",
+      "reveal": {
+        "flag": "painting_clue_found",
+        "text": "Glowing letters are still faintly visible across the background: M D C C C X L V I I."
+      }
+    },
+    "globe": {
+      "name": "antique globe",
+      "aliases": ["globe", "antique globe", "world globe"],
+      "description": "A large antique globe on a wooden stand. A thin seam runs around its equator.",
+      "container": true,
+      "locked": true,
+      "lock": {
+        "type": "key",
+        "key": "brass_key",
+        "locked_text": "There is a small brass keyhole near the North Pole; the two halves are locked together.",
+        "success_message": "The brass key turns with a satisfying click and the upper half of the globe hinges open."
+      }
+    },
+    "door": {
+      "name": "exit door",
+      "aliases": ["door", "exit", "exit door", "keypad", "iron door"],
+      "description": "A heavy iron-banded door — the only way out.",
+      "is_exit": true,
+      "locked": true,
+      "lock": {
+        "type": "code",
+        "code": "1847",
+        "digits": 4,
+        "requires_flags": ["painting_clue_found"],
+        "locked_text": "A four-digit keypad is mounted beside the handle. The door is locked.",
+        "gate_message": "You punch in a few digits, but you would only be guessing — you have not found the door's clue yet.",
+        "wrong_message": "The keypad buzzes and flashes red. Wrong code.",
+        "success_message": "The keypad flashes green — 1-8-4-7. Bolts slide back and the door swings open. Cool night air rushes in. You have escaped!"
+      }
+    }
+  },
+
+  "items": {
+    "note": {
+      "name": "folded note",
+      "aliases": ["note", "folded note", "paper", "letter"],
+      "location": "desk",
+      "description": "A note in faded ink: 'My books are shelved out of order — open the drawer in the order of the rainbow.'",
+      "examine_flag": "note_read"
+    },
+    "brass_key": {
+      "name": "brass key",
+      "aliases": ["brass key", "key", "small key"],
+      "location": "drawer",
+      "description": "A small, ornate brass key. Its bow is shaped like a tiny globe."
+    },
+    "uv_lamp": {
+      "name": "UV lamp",
+      "aliases": ["uv lamp", "lamp", "uv light", "ultraviolet lamp", "ultraviolet light", "flashlight", "torch", "uv torch", "blacklight", "black light"],
+      "location": "globe",
+      "description": "A pocket ultraviolet lamp. It casts a faint violet glow when switched on."
+    }
+  },
+
+  "use_rules": [
+    {
+      "item": "uv_lamp",
+      "target": "painting",
+      "sets_flag": "painting_clue_found",
+      "message": "You switch on the UV lamp and sweep it across the portrait. Glowing letters appear across the dark background: M D C C C X L V I I.",
+      "repeat_message": "Under the violet light the letters glow again: M D C C C X L V I I."
+    }
+  ],
+
+  "puzzles": [
+    {"label": "Note + coloured books → drawer combination", "flag": "drawer_unlocked"},
+    {"label": "Brass key → antique globe", "flag": "globe_unlocked"},
+    {"label": "UV lamp → hidden message in the painting", "flag": "painting_clue_found"},
+    {"label": "Roman numerals → exit door", "flag": "door_unlocked"}
+  ],
+
+  "secrets": [
+    {"value": "714", "revealed_by": "drawer_unlocked"},
+    {"value": "MDCCCXLVII", "revealed_by": "painting_clue_found"},
+    {"value": "1847", "revealed_by": "door_unlocked"}
+  ],
+
+  "hints": [
+    {"unless": "note_read", "text": "Start with the desk — someone left something on it."},
+    {"unless": "books_seen", "text": "The note talks about books. Take a closer look at the bookshelf."},
+    {"unless": "drawer_unlocked", "text": "Put the book numbers in the order the note describes (think of a rainbow) and try that on the desk drawer."},
+    {"unless": "took_brass_key", "text": "The drawer is open — check what is inside."},
+    {"unless": "globe_unlocked", "text": "That key needs a keyhole. Have you examined the globe?"},
+    {"unless": "took_uv_lamp", "text": "Something is waiting inside the open globe."},
+    {"unless": "painting_clue_found", "text": "Ultraviolet light shows what ordinary eyes miss. Try it on the painting."},
+    {"unless": "door_unlocked", "text": "The glowing letters are Roman numerals. Convert them into a four-digit number for the door keypad."}
+  ]
+}
